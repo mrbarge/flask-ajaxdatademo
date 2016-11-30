@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>Books</title>
+    <meta name="description" content="A demonstration of Flask-driven Datatables, Ajax and Dialogs.">
+    <meta name="author" content="mrbarge">
+	<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-3.3.7.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui-1.12.1.min.css') }}">
+	<script src="{{ url_for('static', filename='jquery-1.12.4.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='bootstrap-3.3.7.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='jquery-ui-1.12.1.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='jquery.dataTables-1.10.12.min.js') }}"></script>
+</head>
+
+<script>
+var dialogopt = {
+	autoOpen: false,
+	modal: true,
+	width: 400,
+	height: 200,
+	title: "Reviews"
+};
+$(document).ready(function() {
+	dt = $('#books').dataTable( {
+		"sDom": "<'row-fluid'<'span6 toolbar'><'span6'>r>t<'row-fluid'<'span6'f><'span6'p>>",
+		"bProcessing": true,
+		"bjQueryUI": true,
+        "columnDefs": [{
+			targets: 0,
+			render : function(data, type, row, meta) {
+				if(type === 'display'){
+				   return $('<a>')
+				   .attr({'href':'reviews/' + data})
+				   .text(data)
+				   .wrap('<div></div>')
+				   .parent()
+				   .html();
+				} else {
+					return data;
+				}
+			}
+		}],
+		"sAjaxSource": "{{ url_for('get_server_data') }}",
+	});
+	$('#books tbody').on("click",'td', function(e) {
+		e.preventDefault();
+		$("#dialog").html("");
+		$("#dialog").dialog(dialogopt).dialog("open");
+		review_id = dt.api().cell(this).data();
+		$("#dialog").load('reviews/' + review_id);
+	});
+});
+</script>
+<body>
+    <div id="dialog" title="dialog"></div>
+	<table class='table' id='books'>
+		<thead>
+			<tr>
+				{% for col in columns %}
+				<th>{{ col }}</th>
+				{% endfor %}
+			</tr>
+		</thead>
+	</table>
+</body>
+
+</html>

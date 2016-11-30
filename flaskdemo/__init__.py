@@ -1,0 +1,1 @@
+from .flaskdemo import app
