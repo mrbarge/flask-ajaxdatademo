@@ -14,10 +14,12 @@ examples served as a useful base for mashing these capabilities together.
 
 ### Installation ###
 
+```bash
 pip install --editable .
 export FLASK_APP=flaskdemo
 flask initdb
 flask run
+```
 
 The application will be accessible from http://localhost:5000
 
