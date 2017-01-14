@@ -4,7 +4,7 @@ import json
 import os
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash
+     render_template, flash, jsonify
 
 
 book_columns = ['Id','Name','Release Date','Average Rating']
@@ -79,7 +79,7 @@ def index():
 @app.route('/_server_data')
 def get_server_data():
     db = get_db()
-    cur = db.execute('SELECT b.id, b.name, b.release_date, avg(r.rating) FROM books b, reviews r WHERE b.id = r.book_id GROUP BY b.id')
+    cur = db.execute('SELECT b.id, b.name, b.release_date, avg(r.rating) FROM book b, review r WHERE b.id = r.book_id GROUP BY b.id')
     entries = cur.fetchall()
 
     collection = []
@@ -93,11 +93,18 @@ def get_server_data():
 @app.route('/reviews/<book_id>')
 def get_reviews(book_id):
     db = get_db()
-    cur = db.execute('SELECT r.review, r.rating FROM reviews r WHERE r.book_id = ?',book_id)
+
+    format = request.args.get('format')
+
+    cur = db.execute('SELECT r.review, r.rating FROM review r WHERE r.book_id = ?',(book_id,))
     reviews = cur.fetchall()
     review_columns = ['Review','Rating']
-    return render_template('reviews.html', columns=review_columns, reviews=reviews)
 
+    if format is not None and format == 'json':
+        j = [{"review":i[0],"rating":i[1]} for i in reviews]
+        return jsonify(j)
+    else:
+        return render_template('reviews.html', columns=review_columns, reviews=reviews)
 
 if __name__ == '__main__':
     app.run()
