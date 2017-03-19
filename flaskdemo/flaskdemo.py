@@ -107,4 +107,4 @@ def get_reviews(book_id):
         return render_template('reviews.html', columns=review_columns, reviews=reviews)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
